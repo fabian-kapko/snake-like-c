@@ -14,8 +14,8 @@ struct snake
 {
     size_t matrix_size;
     size_t **arr;
-    size_t pos_history;
     size_t **pos_history_matrix;
+    size_t pos_history;
     size_t pos[2];
     size_t treasure_pos[2];
     size_t forbidden_move;
