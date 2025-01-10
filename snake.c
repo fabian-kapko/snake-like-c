@@ -15,7 +15,7 @@ struct snake
     size_t matrix_size;
     size_t **arr;
     size_t pos_history;
-    size_t pos_history_arr[4096][2];
+    size_t pos_history_matrix[4096][2];
     size_t pos[2];
     size_t treasure_pos[2];
     size_t forbidden_move;
@@ -40,7 +40,7 @@ size_t **create_cubic_matrix(size_t **arr, size_t matrix_size)
 
 void set_pos(struct snake *snake)
 {
-    snake->arr[snake->pos_history_arr[snake->pos_history - snake->size][0]][snake->pos_history_arr[snake->pos_history - snake->size][1]] = 0;
+    snake->arr[snake->pos_history_matrix[snake->pos_history - snake->size][0]][snake->pos_history_matrix[snake->pos_history - snake->size][1]] = 0;
     snake->arr[snake->pos[0]][snake->pos[1]] = 1;
 }
 
@@ -109,8 +109,8 @@ void move_snake(struct snake *snake, size_t move)
         break;
     }
 
-    snake->pos_history_arr[snake->pos_history][0] = snake->pos[0];
-    snake->pos_history_arr[snake->pos_history][1] = snake->pos[1];
+    snake->pos_history_matrix[snake->pos_history][0] = snake->pos[0];
+    snake->pos_history_matrix[snake->pos_history][1] = snake->pos[1];
     if (snake->arr[snake->pos[0]][snake->pos[1]] == 9)
     {
         snake->size++;
