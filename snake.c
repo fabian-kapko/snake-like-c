@@ -14,12 +14,12 @@ struct snake
 {
     size_t matrix_size;
     size_t **arr;
+    size_t pos_history;
+    size_t pos_history_arr[4096][2];
     size_t pos[2];
     size_t treasure_pos[2];
     size_t forbidden_move;
     size_t size;
-    size_t lenght;
-    size_t delete[2];
 };
 
 size_t random_n(size_t max)
@@ -40,7 +40,7 @@ size_t **create_cubic_matrix(size_t **arr, size_t matrix_size)
 
 void set_pos(struct snake snake)
 {
-
+    snake.arr[snake.pos_history_arr[snake.pos_history-snake.size][0]][snake.pos_history_arr[snake.pos_history-snake.size][1]] = 0;
     snake.arr[snake.pos[0]][snake.pos[1]] = 1;
 }
 
@@ -63,15 +63,8 @@ void render_array(struct snake snake)
 void move_snake(struct snake *snake, size_t move)
 {
 
-        if (snake->size > snake->lenght)
-        {
-        snake->delete[0]=snake->pos[0] ;  
-        snake->delete[1]=snake->pos[1] ;
-        snake->size--;
-        }
     switch (move)
     {
-
     case MOVE_DOWN:
 
         snake->pos[0] = snake->pos[0] + 1;
@@ -110,28 +103,25 @@ void move_snake(struct snake *snake, size_t move)
 
         break;
 
-        
-
-
-        
     }
 
-    snake->size++;
+        snake->pos_history_arr[snake->pos_history][0] = snake->pos[0];
+        snake->pos_history_arr[snake->pos_history][1] = snake->pos[1];
+        
+    // snake->size++;
     printf("[%d][%d]\n", snake->pos[0], snake->pos[1]);
-        snake->arr[snake->delete[0]][snake->delete[1]] = 0;
-
-    
 
     set_pos(*snake);
     render_array(*snake);
+    snake->pos_history++;
 }
 
 size_t request_move(struct snake *snake)
 {
     printf("your move:...\n");
-        size_t move;
+    size_t move;
     scanf("%ld", &move);
-  //  getchar();
+    //  getchar();
     printf("{%ld}", move);
     return move;
 }
@@ -155,8 +145,9 @@ int main()
     s1.matrix_size = 8;
     s1.arr = create_cubic_matrix(s1.arr, s1.matrix_size);
     s1.pos[0] = 0;
-    s1.pos[1] = 2;
-    s1.lenght = 3;
+    s1.pos[1] = 0;
+    s1.pos_history = 1;
+    s1.size = 1;
     set_pos(s1);
     snake_game(&s1);
 
