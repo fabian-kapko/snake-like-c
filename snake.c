@@ -38,10 +38,10 @@ size_t **create_cubic_matrix(size_t **arr, size_t matrix_size)
     return arr;
 }
 
-void set_pos(struct snake snake)
+void set_pos(struct snake *snake)
 {
-    snake.arr[snake.pos_history_arr[snake.pos_history - snake.size][0]][snake.pos_history_arr[snake.pos_history - snake.size][1]] = 0;
-    snake.arr[snake.pos[0]][snake.pos[1]] = 1;
+    snake->arr[snake->pos_history_arr[snake->pos_history - snake->size][0]][snake->pos_history_arr[snake->pos_history - snake->size][1]] = 0;
+    snake->arr[snake->pos[0]][snake->pos[1]] = 1;
 }
 
 void set_treasue_pos(struct snake *snake)
@@ -54,13 +54,13 @@ void set_treasue_pos(struct snake *snake)
     new_treasure_pos = NULL;
 }
 
-void render_array(struct snake snake)
+void render_array(struct snake *snake)
 {
-    for (size_t i = 0; i < snake.matrix_size; i++)
+    for (size_t i = 0; i < snake->matrix_size; i++)
     {
-        for (size_t j = 0; j < snake.matrix_size; j++)
+        for (size_t j = 0; j < snake->matrix_size; j++)
         {
-            printf("%ld", snake.arr[i][j]);
+            printf("%ld", snake->arr[i][j]);
         }
         printf("\n");
     }
@@ -119,8 +119,8 @@ void move_snake(struct snake *snake, size_t move)
 
     printf("[%d][%d]\n", snake->pos[0], snake->pos[1]);
 
-    set_pos(*snake);
-    render_array(*snake);
+    set_pos(snake);
+    render_array(snake);
     snake->pos_history++;
 }
 
@@ -141,22 +141,28 @@ void initiate_game(struct snake *snake)
     snake->pos[1] = 0;
     snake->pos_history = 1;
     snake->size = 1;
-    set_pos(*snake);
+    set_pos(snake);
     set_treasue_pos(snake);
-    render_array(*snake);
+    render_array(snake);
     printf("\n");
 }
+
+void deinitiate_game(struct snake *snake)
+{
+
+    free(snake->arr);
+    snake->arr = NULL;
+}
+
 void snake_game(struct snake *snake)
 {
     initiate_game(snake);
-
     while (1)
     {
 
         move_snake(snake, request_move(snake));
     }
-    free(snake->arr);
-    snake->arr = NULL;
+    deinitiate_game(snake);
 }
 
 int main()
