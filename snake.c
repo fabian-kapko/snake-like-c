@@ -26,16 +26,23 @@ size_t random_n(size_t max)
 {
     return rand() % max;
 }
-
-size_t **create_cubic_matrix(size_t **arr, size_t matrix_size)
+size_t request_move(struct snake *snake)
 {
-    arr = (size_t **)malloc(sizeof(size_t *) * matrix_size);
-    for (size_t i = 0; i < matrix_size; i++)
+    printf("your move:...\n");
+    size_t move;
+    scanf("%ld", &move);
+    printf("{%ld}", move);
+    return move;
+}
+
+void **create_cubic_matrix(struct snake *snake)
+{
+    snake->arr = (size_t **)malloc(sizeof(size_t *) * snake->matrix_size);
+    for (size_t i = 0; i < snake->matrix_size; i++)
     {
-        arr[i] = (size_t *)malloc(sizeof(size_t) * matrix_size);
+        snake->arr[i] = (size_t *)malloc(sizeof(size_t) * snake->matrix_size);
     }
 
-    return arr;
 }
 
 void set_pos(struct snake *snake)
@@ -124,19 +131,12 @@ void move_snake(struct snake *snake, size_t move)
     snake->pos_history++;
 }
 
-size_t request_move(struct snake *snake)
-{
-    printf("your move:...\n");
-    size_t move;
-    scanf("%ld", &move);
-    printf("{%ld}", move);
-    return move;
-}
+
 void initiate_game(struct snake *snake)
 {
 
     snake->matrix_size = 8;
-    snake->arr = create_cubic_matrix(snake->arr, snake->matrix_size);
+    create_cubic_matrix(snake);
     snake->pos[0] = 0;
     snake->pos[1] = 0;
     snake->pos_history = 1;
