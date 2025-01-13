@@ -27,7 +27,7 @@ size_t random_n(size_t max)
 {
     return rand() % max;
 }
-size_t request_move(struct snake *snake)
+size_t request_move()
 {
     printf("your move:...\n");
     size_t move;
@@ -42,7 +42,6 @@ void create_cubic_matrix(struct snake *snake)
     {
         snake->arr[i] = (size_t *)malloc(sizeof(size_t) * snake->matrix_size);
     }
-
 }
 
 void create_pos_history_matrix(struct snake *snake)
@@ -52,7 +51,6 @@ void create_pos_history_matrix(struct snake *snake)
     {
         snake->pos_history_matrix[i] = (size_t *)malloc(sizeof(size_t) * 2);
     }
-
 }
 
 void set_pos(struct snake *snake)
@@ -134,13 +132,12 @@ void move_snake(struct snake *snake, size_t move)
         set_treasue_pos(snake);
     }
 
-    printf("Snake Lenght:%ld, Target:%ld\n", snake->size,snake->game_lenght);
+    printf("Snake Lenght:%ld, Target:%ld\n", snake->size, snake->game_lenght);
 
     set_pos(snake);
     render_array(snake);
     snake->pos_history++;
 }
-
 
 void initiate_game(struct snake *snake)
 {
@@ -165,7 +162,6 @@ void deinitiate_game(struct snake *snake)
     snake->arr = NULL;
     free(snake->pos_history_matrix);
     snake->pos_history_matrix = NULL;
-
 }
 
 void snake_game(struct snake *snake)
@@ -177,7 +173,7 @@ void snake_game(struct snake *snake)
         move_snake(snake, request_move(snake));
     }
     deinitiate_game(snake);
-    printf("You finished game in %ld moves. \n",snake->pos_history);
+    printf("You finished game in %ld moves. \n", snake->pos_history);
 }
 
 int main()
