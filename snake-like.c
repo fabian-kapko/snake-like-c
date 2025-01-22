@@ -1,3 +1,7 @@
+//Original game developed to prove i can do it
+//LEGACY
+//The new one is snake-ncurses which is written more sensely
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
