@@ -5,10 +5,10 @@
 #include <unistd.h>
 
 #define MOVE_UP 119    //'w'
-#define MOVE_LEFT 97  //'s'
+#define MOVE_LEFT 97   //'s'
 #define MOVE_DOWN 115  //'a'
 #define MOVE_RIGHT 100 //'d'
-#define SPEED 500    // ms
+#define SPEED 500      // ms
 
 struct snake
 {
@@ -55,8 +55,8 @@ void create_cubic_matrix(struct snake *snake)
 
 void create_pos_history_matrix(struct snake *snake)
 {
-    snake->pos_history_matrix = (size_t **)malloc(sizeof(size_t *) * 4096);
-    for (size_t i = 0; i < 4096; i++)
+    snake->pos_history_matrix = (size_t **)malloc(sizeof(size_t *) * 1024 * snake->matrix_size);
+    for (size_t i = 0; i < 1024 * snake->matrix_size; i++)
     {
         snake->pos_history_matrix[i] = (size_t *)malloc(sizeof(size_t) * 2);
     }
@@ -64,7 +64,9 @@ void create_pos_history_matrix(struct snake *snake)
 
 void set_pos(struct snake *snake)
 {
+    //deletes tail
     snake->arr[snake->pos_history_matrix[snake->pos_history - snake->size][0]][snake->pos_history_matrix[snake->pos_history - snake->size][1]] = 0;
+    //makes new head
     snake->arr[snake->pos[0]][snake->pos[1]] = 1;
 }
 
@@ -80,11 +82,12 @@ void set_treasue_pos(struct snake *snake)
 
 void render_array(struct snake *snake)
 {
+    //initiates statistic lines before game field
     mvprintw(snake->start_y - 4, snake->start_y - 2, "Game size: %ld", snake->matrix_size);
     mvprintw(snake->start_y - 3, snake->start_y - 2, "Time: %ld", snake->pos_history * SPEED / 1000);
     mvprintw(snake->start_y - 2, snake->start_y - 2, "Score: %ld", snake->size);
     mvprintw(snake->start_y - 1, snake->start_y - 2, "Objective: %ld", snake->game_lenght);
-
+    //renders game field 8means barrier, 9means treasure, 1means snake, 0means free
     for (int i = 0; i < snake->matrix_size; i++)
     {
         for (int j = 0; j < snake->matrix_size; j++)
@@ -124,10 +127,9 @@ void render_array(struct snake *snake)
 }
 
 void gui_init(struct snake *snake)
-{
-    // ncourses initiation
+{   //screen init 
     initscr();
-    nodelay(stdscr, TRUE);
+    nodelay(stdscr, TRUE); //somehow makes game go on continiously
     noecho();
     cbreak();
 
@@ -137,16 +139,19 @@ void gui_init(struct snake *snake)
     snake->start_y = (screen_height - snake->matrix_size) / 2;
     snake->start_x = (screen_width - snake->matrix_size * 2) / 2;
     start_color();
+    //can be changes to whatever you want
     init_pair(1, COLOR_YELLOW, COLOR_YELLOW);
     init_pair(2, COLOR_RED, COLOR_RED);
     init_pair(3, COLOR_GREEN, COLOR_GREEN);
     init_pair(4, COLOR_WHITE, COLOR_WHITE);
 }
 
+
+
 void move_snake(struct snake *snake)
 {
-    size_t move = snake->current_move;
-    switch (move)
+    //swich statement to determine what direction to move snake
+    switch (snake->current_move)
     {
     case MOVE_DOWN:
 
@@ -186,16 +191,15 @@ void move_snake(struct snake *snake)
 
         break;
     }
-
+    //saves position to history so it can delete the tail(coulnt figure out better solution)
     snake->pos_history_matrix[snake->pos_history][0] = snake->pos[0];
     snake->pos_history_matrix[snake->pos_history][1] = snake->pos[1];
+    //checkes for snake eating treasure
     if (snake->arr[snake->pos[0]][snake->pos[1]] == 9)
     {
         snake->size++;
         set_treasue_pos(snake);
     }
-
-    //   printf("Snake Lenght:%ld, Target:%ld\n", snake->size, snake->game_lenght);
 
     set_pos(snake);
     render_array(snake);
@@ -205,18 +209,15 @@ void move_snake(struct snake *snake)
 void initiate_game(struct snake *snake)
 {
 
-    snake->matrix_size = 8;
     create_cubic_matrix(snake);
     create_pos_history_matrix(snake);
     snake->pos[0] = 0;
     snake->pos[1] = 0;
     snake->pos_history = 1;
     snake->size = 1;
-    snake->game_lenght = 4;
     snake->current_move = MOVE_DOWN;
     set_pos(snake);
     set_treasue_pos(snake);
-    //  printf("\n");
     gui_init(snake);
 }
 
@@ -231,24 +232,26 @@ void deinitiate_game(struct snake *snake)
     endwin();
 }
 
-void snake_game(struct snake *snake)
+void snake_game(size_t game_lenght,size_t game_size)
 {
-    initiate_game(snake);
-    while (snake->size < snake->game_lenght)
+    struct snake snake;
+    snake.game_lenght = game_lenght;
+    snake.matrix_size = game_size;
+    initiate_game(&snake);
+    while (snake.size < snake.game_lenght)
     {
 
-        request_move(snake);
-        move_snake(snake);
-        render_array(snake);
+        request_move(&snake);
+        move_snake(&snake);
+        render_array(&snake);
     }
-    deinitiate_game(snake);
-    // f  printf("You finished game in %ld moves. \n", snake->pos_history);
+    deinitiate_game(&snake);
+
 }
 
 int main()
 {
-    struct snake snake;
-    snake_game(&snake);
 
+    snake_game(4,16);
     return 0;
 }
