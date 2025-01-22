@@ -4,10 +4,10 @@
 #include <ncurses.h>
 #include <unistd.h>
 
-#define MOVE_UP 8    //'w'
-#define MOVE_DOWN 2  //'s'
-#define MOVE_LEFT 4  //'a'
-#define MOVE_RIGHT 6 //'d'
+#define MOVE_UP 119    //'w'
+#define MOVE_LEFT 97  //'s'
+#define MOVE_DOWN 115  //'a'
+#define MOVE_RIGHT 100 //'d'
 #define SPEED 500    // ms
 
 struct snake
@@ -23,25 +23,25 @@ struct snake
     size_t game_lenght;
     size_t start_x;
     size_t start_y;
+    size_t current_move;
 };
 
 size_t random_n(size_t max)
 {
     return rand() % max;
 }
-size_t request_move()
+void request_move(struct snake *snake)
 {
+
     usleep(SPEED * 1000);
     size_t new_move = getch();
-    size_t move;
     if (new_move == MOVE_UP || new_move == MOVE_DOWN || new_move == MOVE_LEFT || new_move == MOVE_RIGHT)
     {
-        if (new_move != 0) // prevent reversing into itself
+        if (new_move != snake->forbidden_move) // prevent reversing into itself
         {
-            move = new_move;
+            snake->current_move = new_move;
         }
     }
-    return move;
 }
 
 void create_cubic_matrix(struct snake *snake)
@@ -143,9 +143,9 @@ void gui_init(struct snake *snake)
     init_pair(4, COLOR_WHITE, COLOR_WHITE);
 }
 
-void move_snake(struct snake *snake, size_t move)
+void move_snake(struct snake *snake)
 {
-
+    size_t move = snake->current_move;
     switch (move)
     {
     case MOVE_DOWN:
@@ -213,6 +213,7 @@ void initiate_game(struct snake *snake)
     snake->pos_history = 1;
     snake->size = 1;
     snake->game_lenght = 4;
+    snake->current_move = MOVE_DOWN;
     set_pos(snake);
     set_treasue_pos(snake);
     //  printf("\n");
@@ -225,6 +226,9 @@ void deinitiate_game(struct snake *snake)
     snake->arr = NULL;
     free(snake->pos_history_matrix);
     snake->pos_history_matrix = NULL;
+    clear();
+    refresh();
+    endwin();
 }
 
 void snake_game(struct snake *snake)
@@ -233,7 +237,8 @@ void snake_game(struct snake *snake)
     while (snake->size < snake->game_lenght)
     {
 
-        move_snake(snake, request_move(snake));
+        request_move(snake);
+        move_snake(snake);
         render_array(snake);
     }
     deinitiate_game(snake);
