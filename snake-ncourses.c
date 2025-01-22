@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-// #include <ncurses.h>
+#include <ncurses.h>
 #include <unistd.h>
 
 #define MOVE_UP 8    //'w'
@@ -21,6 +21,8 @@ struct snake
     size_t forbidden_move;
     size_t size;
     size_t game_lenght;
+    size_t start_x;
+    size_t start_y;
 };
 
 size_t random_n(size_t max)
@@ -29,9 +31,16 @@ size_t random_n(size_t max)
 }
 size_t request_move()
 {
-    printf("your move:...\n");
+    usleep(SPEED * 1000);
+    size_t new_move = getch();
     size_t move;
-    scanf("%ld", &move);
+    if (new_move == MOVE_UP || new_move == MOVE_DOWN || new_move == MOVE_LEFT || new_move == MOVE_RIGHT)
+    {
+        if (new_move != 0) // prevent reversing into itself
+        {
+            move = new_move;
+        }
+    }
     return move;
 }
 
@@ -71,15 +80,69 @@ void set_treasue_pos(struct snake *snake)
 
 void render_array(struct snake *snake)
 {
-    for (size_t i = 0; i < snake->matrix_size; i++)
+    mvprintw(snake->start_y - 4, snake->start_y - 2, "Game size: %ld", snake->matrix_size);
+    mvprintw(snake->start_y - 3, snake->start_y - 2, "Time: %ld", snake->pos_history * SPEED / 1000);
+    mvprintw(snake->start_y - 2, snake->start_y - 2, "Score: %ld", snake->size);
+    mvprintw(snake->start_y - 1, snake->start_y - 2, "Objective: %ld", snake->game_lenght);
+
+    for (int i = 0; i < snake->matrix_size; i++)
     {
-        for (size_t j = 0; j < snake->matrix_size; j++)
+        for (int j = 0; j < snake->matrix_size; j++)
         {
-            printf("%ld", snake->arr[i][j]);
+            char print;
+            switch (snake->arr[i][j])
+            {
+            case 1:
+                print = '*';
+                attron(COLOR_PAIR(3));
+                mvprintw(snake->start_y + i, snake->start_y + j * 2, "%c", print);
+                attroff(COLOR_PAIR(3));
+                break;
+            case 9:
+                print = '*';
+                attron(COLOR_PAIR(2));
+                mvprintw(snake->start_y + i, snake->start_y + j * 2, "%c", print);
+                attroff(COLOR_PAIR(2));
+                break;
+            case 0:
+                print = '*';
+                attron(COLOR_PAIR(1));
+                mvprintw(snake->start_y + i, snake->start_y + j * 2, "%c", print);
+                attroff(COLOR_PAIR(1));
+                break;
+            case 8:
+                print = '*';
+                attron(COLOR_PAIR(4));
+                mvprintw(snake->start_y + i, snake->start_y + j * 2, "%c", print);
+                attroff(COLOR_PAIR(4));
+                break;
+            }
         }
-        printf("\n");
     }
+
+    refresh();
 }
+
+void gui_init(struct snake *snake)
+{
+    // ncourses initiation
+    initscr();
+    nodelay(stdscr, TRUE);
+    noecho();
+    cbreak();
+
+    int screen_height, screen_width;
+    getmaxyx(stdscr, screen_height, screen_width);
+
+    snake->start_y = (screen_height - snake->matrix_size) / 2;
+    snake->start_x = (screen_width - snake->matrix_size * 2) / 2;
+    start_color();
+    init_pair(1, COLOR_YELLOW, COLOR_YELLOW);
+    init_pair(2, COLOR_RED, COLOR_RED);
+    init_pair(3, COLOR_GREEN, COLOR_GREEN);
+    init_pair(4, COLOR_WHITE, COLOR_WHITE);
+}
+
 void move_snake(struct snake *snake, size_t move)
 {
 
@@ -132,9 +195,10 @@ void move_snake(struct snake *snake, size_t move)
         set_treasue_pos(snake);
     }
 
-    printf("Snake Lenght:%ld, Target:%ld\n", snake->size, snake->game_lenght);
+    //   printf("Snake Lenght:%ld, Target:%ld\n", snake->size, snake->game_lenght);
 
     set_pos(snake);
+    render_array(snake);
     snake->pos_history++;
 }
 
@@ -151,8 +215,8 @@ void initiate_game(struct snake *snake)
     snake->game_lenght = 4;
     set_pos(snake);
     set_treasue_pos(snake);
-    render_array(snake);
-    printf("\n");
+    //  printf("\n");
+    gui_init(snake);
 }
 
 void deinitiate_game(struct snake *snake)
@@ -171,10 +235,9 @@ void snake_game(struct snake *snake)
 
         move_snake(snake, request_move(snake));
         render_array(snake);
-
     }
     deinitiate_game(snake);
-    printf("You finished game in %ld moves. \n", snake->pos_history);
+    // f  printf("You finished game in %ld moves. \n", snake->pos_history);
 }
 
 int main()
