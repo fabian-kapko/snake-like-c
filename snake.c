@@ -85,7 +85,7 @@ void render_array(struct snake *snake)
     //initiates statistic lines before game field
     mvprintw(snake->start_y - 4, snake->start_y - 2, "Game size: %ld", snake->matrix_size);
     mvprintw(snake->start_y - 3, snake->start_y - 2, "Time: %ld", snake->pos_history * SPEED / 1000);
-    mvprintw(snake->start_y - 2, snake->start_y - 2, "Score: %ld", snake->size);
+    mvprintw(snake->start_y - 2, snake->start_y - 2, "Score: %ld", snake->size - 1);
     mvprintw(snake->start_y - 1, snake->start_y - 2, "Objective: %ld", snake->game_lenght);
     //renders game field 8means barrier, 9means treasure, 1means snake, 0means free
     for (int i = 0; i < snake->matrix_size; i++)
@@ -230,6 +230,7 @@ void deinitiate_game(struct snake *snake)
     clear();
     refresh();
     endwin();
+    printf("End of the game.\n");
 }
 
 void snake_game(size_t game_lenght,size_t game_size)
@@ -238,7 +239,7 @@ void snake_game(size_t game_lenght,size_t game_size)
     snake.game_lenght = game_lenght;
     snake.matrix_size = game_size;
     initiate_game(&snake);
-    while (snake.size < snake.game_lenght)
+    while (snake.size < snake.game_lenght +1)
     {
 
         request_move(&snake);
@@ -251,7 +252,12 @@ void snake_game(size_t game_lenght,size_t game_size)
 
 int main()
 {
-
-    snake_game(4,16);
+    printf("Size of game field: \n");
+    size_t field;
+    scanf("%ld", &field);
+    printf("Size of objective: \n");
+    size_t obj;
+    scanf("%ld", &obj);
+    snake_game(obj,field);
     return 0;
 }
