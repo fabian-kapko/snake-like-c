@@ -129,7 +129,7 @@ void render_array(struct snake *snake)
 void gui_init(struct snake *snake)
 {   //screen init 
     initscr();
-    nodelay(stdscr, TRUE); //somehow makes game go on continiously
+    nodelay(stdscr, TRUE); //le magic that makes game go on continiously, need to sleep the snake above
     noecho();
     cbreak();
 
@@ -150,7 +150,7 @@ void gui_init(struct snake *snake)
 
 void move_snake(struct snake *snake)
 {
-    //swich statement to determine what direction to move snake
+    //swich statement to determine what direction to move snake, works continuosly only if you make the move snake function sleep
     switch (snake->current_move)
     {
     case MOVE_DOWN:
@@ -192,6 +192,7 @@ void move_snake(struct snake *snake)
         break;
     }
     //saves position to history so it can delete the tail(coulnt figure out better solution)
+    //memory intensivity could be fixed with realloc after certain type, but i dont yet know how to fix and make it go on eternally, currently consumes a lot of RAM.
     snake->pos_history_matrix[snake->pos_history][0] = snake->pos[0];
     snake->pos_history_matrix[snake->pos_history][1] = snake->pos[1];
     //checkes for snake eating treasure
