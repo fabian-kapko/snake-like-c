@@ -253,6 +253,7 @@ void snake_game(size_t game_lenght,size_t game_size)
 
 int main()
 {
+    srand(time(NULL));
     printf("Size of game field: \n");
     size_t field;
     scanf("%ld", &field);
